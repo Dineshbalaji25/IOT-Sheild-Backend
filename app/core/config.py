@@ -2,11 +2,20 @@ from pydantic_settings import BaseSettings
 from typing import List
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "mysql+mysqlconnector://user:userpassword@localhost:3306/iot_db"
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 3306
+    DB_USER: str = "user"
+    DB_PASSWORD: str = "userpassword"
+    DB_NAME: str = "iot_db"
+    
     MQTT_BROKER: str = "localhost"
     MQTT_PORT: int = 1883
     MQTT_TOPICS: str = "sensors/device1,sensors/device2,sensors/device3"
     
+    @property
+    def DATABASE_URL(self) -> str:
+        return f"mysql+mysqlconnector://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
     # Thresholds
     TEMP_MIN: float = 0.0
     TEMP_MAX: float = 50.0
@@ -25,5 +34,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        case_sensitive = False
 
 settings = Settings()

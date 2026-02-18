@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base
 from app.api.routes import router as api_router
 from app.services.mqtt_consumer import mqtt_consumer
@@ -40,6 +41,15 @@ app = FastAPI(
     description="Event-driven telemetry ingestion and alerting service.",
     version="1.0.0",
     lifespan=lifespan
+)
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include API routes

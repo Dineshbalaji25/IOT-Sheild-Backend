@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -8,8 +6,6 @@ services:
     environment:
       MYSQL_DATABASE: iot_db
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userpassword
     ports:
       - "3307:3306"
     volumes:
@@ -34,11 +30,11 @@ services:
     depends_on:
       - mysql
       - mosquitto
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: mysql+mysqlconnector://user:userpassword@mysql:3306/iot_db
+      DB_HOST: mysql
       MQTT_BROKER: mosquitto
-      MQTT_PORT: 1883
-      MQTT_TOPICS: "sensors/device1,sensors/device2,sensors/device3,sensors/device4,sensors/device5"
     volumes:
       - .:/app
 

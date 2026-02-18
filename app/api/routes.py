@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/health")
 def health_check():
-    return {"status": "healthy", "timestamp": datetime.utcnow()}
+    return {"status": "ok"}
 
 @router.get("/sensors/latest", response_model=List[SensorResponse])
 def get_latest_sensors(db: Session = Depends(get_db)):
@@ -22,10 +22,11 @@ def get_sensor_history(
     device_id: Optional[str] = None,
     start_time: Optional[datetime] = None,
     end_time: Optional[datetime] = None,
-    skip: int = Query(0, ge=0),
+    page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
+    skip = (page - 1) * limit
     return SensorService.get_history(db, device_id, start_time, end_time, skip, limit)
 
 @router.get("/alerts", response_model=List[AlertResponse])

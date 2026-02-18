@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+.docker-compose.env
+mysql_data/
+.git/
+.vscode/
+.idea/
+*.log

@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: iot_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: iot_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: iot_mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  backend:
+    build: .
+    container_name: iot_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - mosquitto
+    environment:
+      DATABASE_URL: mysql+mysqlconnector://user:userpassword@mysql:3306/iot_db
+      MQTT_BROKER: mosquitto
+      MQTT_PORT: 1883
+      MQTT_TOPICS: "sensors/device1,sensors/device2,sensors/device3,sensors/device4,sensors/device5"
+    volumes:
+      - .:/app
+
+volumes:
+  mysql_data:

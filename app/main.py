@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import logging
+import time
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base
 from app.api.routes import router as api_router
 from app.services.mqtt_consumer import mqtt_consumer
+# Import models to ensure they are registered with Base.metadata
+from app.models.iot_models import SensorData, Alert
 
 # Configure logging
 logging.basicConfig(
@@ -19,12 +22,21 @@ async def lifespan(app: FastAPI):
     # Startup logic
     logger.info("Starting up IoT Backend...")
     
-    # 1. Create database tables if they don't exist
-    try:
-        Base.metadata.create_all(bind=engine)
-        logger.info("Database tables verified/created.")
-    except Exception as e:
-        logger.error(f"Error creating database tables: {e}")
+    # 1. Create database tables if they don't exist (with retry logic)
+    max_retries = 10
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Database tables verified/created.")
+            break
+        except Exception as e:
+            retry_count += 1
+            logger.warning(f"Database not ready (attempt {retry_count}/{max_retries}): {e}")
+            if retry_count >= max_retries:
+                logger.error("Could not connect to database after maximum retries.")
+            else:
+                time.sleep(5)
 
     # 2. Start MQTT Consumer
     mqtt_consumer.start()

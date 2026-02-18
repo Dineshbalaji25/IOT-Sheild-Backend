@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.iot_models import SensorData
 from app.schemas.iot_schemas import SensorPayload
-from datetime import datetime
+from datetime import datetime, timezone
 
 class SensorService:
     @staticmethod
@@ -15,7 +15,7 @@ class SensorService:
             voltage=payload.voltage,
             current=payload.current,
             pressure=payload.pressure,
-            received_at=datetime.utcnow()
+            received_at=datetime.now(timezone.utc)
         )
         db.add(db_reading)
         db.commit()
@@ -39,10 +39,12 @@ class SensorService:
         return query.all()
 
     @staticmethod
-    def get_history(db: Session, device_id: str = None, start_time: datetime = None, end_time: datetime = None, skip: int = 0, limit: int = 100):
+    def get_history(db: Session, device_id: str = None, topic: str = None, start_time: datetime = None, end_time: datetime = None, skip: int = 0, limit: int = 100):
         query = db.query(SensorData)
         if device_id:
             query = query.filter(SensorData.device_id == device_id)
+        if topic:
+            query = query.filter(SensorData.topic == topic)
         if start_time:
             query = query.filter(SensorData.received_at >= start_time)
         if end_time:

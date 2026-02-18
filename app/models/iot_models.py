@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, JSON
-from datetime import datetime
+from datetime import datetime, timezone
 from app.db.session import Base
 
 class SensorData(Base):
@@ -13,7 +13,7 @@ class SensorData(Base):
     voltage = Column(Float)
     current = Column(Float)
     pressure = Column(Float)
-    received_at = Column(DateTime, default=datetime.utcnow)
+    received_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class Alert(Base):
     __tablename__ = "alerts"
@@ -24,4 +24,4 @@ class Alert(Base):
     violated_parameters = Column(String(255))  # Or JSON if mysql supports it well, user said string or JSON
     actual_values = Column(JSON)
     message_timestamp = Column(DateTime)
-    alert_created_at = Column(DateTime, default=datetime.utcnow)
+    alert_created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

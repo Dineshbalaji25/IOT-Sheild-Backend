@@ -20,6 +20,7 @@ def get_latest_sensors(db: Session = Depends(get_db)):
 @router.get("/sensors/history", response_model=List[SensorResponse])
 def get_sensor_history(
     device_id: Optional[str] = None,
+    topic: Optional[str] = None,
     start_time: Optional[datetime] = None,
     end_time: Optional[datetime] = None,
     page: int = Query(1, ge=1),
@@ -27,7 +28,7 @@ def get_sensor_history(
     db: Session = Depends(get_db)
 ):
     skip = (page - 1) * limit
-    return SensorService.get_history(db, device_id, start_time, end_time, skip, limit)
+    return SensorService.get_history(db, device_id, topic, start_time, end_time, skip, limit)
 
 @router.get("/alerts", response_model=List[AlertResponse])
 def get_alerts(

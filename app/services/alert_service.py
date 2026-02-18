@@ -3,8 +3,11 @@ from sqlalchemy import func
 from app.models.iot_models import Alert
 from app.schemas.iot_schemas import SensorPayload
 from app.core.config import settings
-from datetime import datetime
+from datetime import datetime, timezone
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AlertService:
     @staticmethod
@@ -28,12 +31,13 @@ class AlertService:
                 topic=topic,
                 violated_parameters=", ".join(violations),
                 actual_values=payload.model_dump(),
-                message_timestamp=datetime.utcnow(),
-                alert_created_at=datetime.utcnow()
+                message_timestamp=datetime.now(timezone.utc),
+                alert_created_at=datetime.now(timezone.utc)
             )
             db.add(alert)
             db.commit()
             db.refresh(alert)
+            logger.warning(f"ALERT TRIGGERED: Device {payload.device_id} on topic {topic}. Violations: {alert.violated_parameters}")
             return alert
         return None
 

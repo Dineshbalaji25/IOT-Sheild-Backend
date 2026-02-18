@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     
     MQTT_BROKER: str = "localhost"
     MQTT_PORT: int = 1883
-    MQTT_TOPICS: str = "sensors/device1,sensors/device2,sensors/device3"
+    MQTT_TOPICS: str = "sensors/device1,sensors/device2,sensors/device3,sensors/device4,sensors/device5"
     
     @property
     def DATABASE_URL(self) -> str:
